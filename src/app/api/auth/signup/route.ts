@@ -28,9 +28,11 @@ export async function POST(req: NextRequest) {
     confirmPassword: string
   }
 
+  const normalizedEmail = email.trim().toLowerCase()
+
   try {
     const existingEmail = await prisma.user.findUnique({
-      where: { email: email }
+      where: { email: normalizedEmail },
     })
     if (existingEmail) {
       return NextResponse.json(
@@ -49,11 +51,12 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const hashedPassword = await bcrypt.hash(password, 12)
     const user = await prisma.user.create({
       data: {
         name: username.trim(),
-        email: email,
-        password: password,
+        email: normalizedEmail,
+        password: hashedPassword,
       },
       select: { id: true, name: true, email: true, createdAt: true },
     })
@@ -78,7 +81,8 @@ export async function POST(req: NextRequest) {
     return res
     
   } catch (error) {
-    
+    console.error('[signup] failed to create user:', error)
+     
     return NextResponse.json(
       { success: false, errors: [{ field: 'general', message: 'Something went wrong. Please try again.' }] },
       { status: 500 }

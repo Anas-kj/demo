@@ -64,7 +64,7 @@ export function validateConfirmPassword(
     errors.push({ field: 'confirmPassword', message: 'Please confirm your password.' })
     return errors
   }
-  if (password !== confirmPassword.trim())
+  if (password.trim() !== confirmPassword.trim())
     errors.push({ field: 'confirmPassword', message: 'Passwords do not match.' })
   return errors
 }
